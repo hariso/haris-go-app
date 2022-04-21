@@ -4,6 +4,9 @@ import (
 	// Dependencies of the example data app
 	"crypto/md5"
 	"encoding/hex"
+	"fmt"
+	"log"
+
 	// Dependencies of Turbine
 	"github.com/meroxa/turbine-go"
 	"github.com/meroxa/turbine-go/runner"
@@ -69,20 +72,20 @@ func (a App) Run(v turbine.Turbine) error {
 type Anonymize struct{}
 
 func (f Anonymize) Process(stream []turbine.Record) ([]turbine.Record, []turbine.RecordWithError) {
-	//for i, r := range stream {
-	//	e := fmt.Sprintf("%s", r.Payload.Get("after.customer_email"))
-	//	if e == "" {
-	//		log.Printf("unable to find customer_email value in %d record\n", i)
-	//		break
-	//	}
-	//	hashedEmail := consistentHash(e)
-	//	err := r.Payload.Set("after.customer_email", hashedEmail)
-	//	if err != nil {
-	//		log.Println("error setting value: ", err)
-	//		break
-	//	}
-	//	stream[i] = r
-	//}
+	for i, r := range stream {
+		e := fmt.Sprintf("%s", r.Payload.Get("after.customer_email"))
+		if e == "" {
+			log.Printf("unable to find customer_email value in %d record\n", i)
+			break
+		}
+		hashedEmail := consistentHash(e)
+		err := r.Payload.Set("after.customer_email", hashedEmail)
+		if err != nil {
+			log.Println("error setting value: ", err)
+			break
+		}
+		stream[i] = r
+	}
 	return stream, nil
 }
 
